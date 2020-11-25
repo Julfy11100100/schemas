@@ -1,5 +1,4 @@
-from pprint import pprint
-
+from jinja2 import Template
 import jsonschema
 import os
 import json
@@ -26,7 +25,7 @@ def validation(instance, result, file, schema):
             index = path.popleft()
             message += " in " + key
             # add place with error
-            result[file].append(instance[key][index])
+            #result[file].append(instance[key][index])
         elif len(path) == 1:
             key = path.popleft()
             message += " in " + key
@@ -40,7 +39,6 @@ workout_created = {"type": "object", "$schema": "http://json-schema.org/schema#"
 
 # dir with files
 event_dir = os.getcwd() + "\\" + "event\\"
-# result
 result = {}
 files = os.listdir(event_dir)
 for file in files:
@@ -68,8 +66,29 @@ for file in files:
         except (json.JSONDecodeError, AttributeError, KeyError, TypeError):
             result[file].append("Incorrect or empty data in file")
 
-for res in result:
-    print(res)
-    print(result[res])
-    print("-----------")
+#print(result)
 
+template = Template("""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Event</title>
+    </head>
+    <body>
+        <table style="border:2px black solid">
+            {% for key,val in result.items() %}
+                <tr>
+                    <th>{{key}}</th>
+                    {% for val2 in val%}
+                        <td>{{val2}}</td>    
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    </body>
+    </html>""")
+
+
+with open("table.html", "w", encoding='utf-8') as f:
+    f.write(template.render(result=result))
