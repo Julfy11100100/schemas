@@ -19,14 +19,8 @@ def validation(instance, result, file, schema):
         path = err.path
         if message.find("is a required property") != -1:
             message = "You need to add a field " + message.split()[0]
-        if len(path) == 2:
+        if len(path) > 0:
             # get params
-            key = path.popleft()
-            index = path.popleft()
-            message += " in " + key
-            # add place with error
-            #result[file].append(instance[key][index])
-        elif len(path) == 1:
             key = path.popleft()
             message += " in " + key
         result[file].append(message)
@@ -66,7 +60,6 @@ for file in files:
         except (json.JSONDecodeError, AttributeError, KeyError, TypeError):
             result[file].append("Incorrect or empty data in file")
 
-#print(result)
 
 template = Template("""
     <!DOCTYPE html>
@@ -76,13 +69,16 @@ template = Template("""
         <title>Event</title>
     </head>
     <body>
-        <table style="border:2px black solid">
+        <table border=1>
+            <th>FILES<th><th>ERRORS<th>
             {% for key,val in result.items() %}
                 <tr>
                     <th>{{key}}</th>
+                    
                     {% for val2 in val%}
-                        <td>{{val2}}</td>    
+                        <td>{{val2}}</td> 
                     {% endfor %}
+                    
                 </tr>
             {% endfor %}
         </table>
